@@ -7,16 +7,21 @@ use AfazTech\ReactorReferral\Support\CodeGenerator;
 use AfazTech\ReactorReferral\Support\ReferralConfig;
 use Reactor\Contracts\ServiceProviderInterface;
 use Reactor\Core\Container;
-use Reactor\Core\Router;
 use Reactor\Enums\MiddlewareMode;
 
 /**
- * Registers referral package services and wires the discovery of the
- * package's handlers and middleware.
+ * Registers referral package services and wires the package's
+ * middleware.
  *
  * Config binding is provided as an empty default. The host application
  * overrides ReferralConfig in its own service provider to customise
  * code length and prefix.
+ *
+ * This package ships no handler and no language files: it exposes only
+ * the ReferralManagerInterface API and the ReferralCaptureMiddleware
+ * (which is required to detect "?start=ref_XXX" deep links). Building a
+ * "/ref" command, a share button, or any other UI on top of the API is
+ * the host application's responsibility.
  */
 class ReferralServiceProvider implements ServiceProviderInterface
 {
@@ -49,11 +54,6 @@ class ReferralServiceProvider implements ServiceProviderInterface
 
     public function boot(Container $container): void
     {
-        if ($container->has(Router::class)) {
-            $router = $container->get(Router::class);
-            $router->discover(__DIR__ . '/Handlers', 'AfazTech\\ReactorReferral\\Handlers');
-        }
-
         $this->registerMiddleware($container);
     }
 
